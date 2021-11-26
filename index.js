@@ -1,12 +1,12 @@
 require("dotenv").config();
-//const io = require('@pm2/io')
+const io = require('@pm2/io')
 const { createBluetooth } = require("./src");
 var { Timer } = require("easytimer.js");
 var timerInstance = new Timer();
 const axios = require('axios');
 const { POLAR_MAC_ADRESSE, USERS_ENDPOINT, PULSESENSORS_ENDPOINT, ID } = process.env;
 
-/*const state = io.metric({
+const state = io.metric({
   name: 'Scanning state',
 })
 const polarBPM = io.metric({
@@ -22,7 +22,7 @@ const lanternSelected = io.metric({
 
 const timer = io.metric({
   name: 'The timer when the BPM is stable',
-})*/
+})
 
 let _USERBPM;
 let _USER;
@@ -64,7 +64,7 @@ async function init() {
   });
 
  // console.log(_USER.data._id);
-  //lanternSelected.set(_USER);
+  lanternSelected.set(_USER);
   await _HEARTRATE.startNotifications();
 
   _HEARTRATE.on("valuechanged", async (buffer) => {
@@ -74,7 +74,7 @@ async function init() {
   })
 
   await axios.put(PULSESENSORS_ENDPOINT + ID, { 'state': 0 })
-  //state.set('Loading');
+  state.set('Loading');
 
   //const currentBPM = await getCurrentBPM();
   //console.log(currentBpm);
@@ -87,7 +87,7 @@ async function init() {
     process.stdout.write("\r\x1b[K")
     process.stdout.write('Ready!')
     await axios.put(PULSESENSORS_ENDPOINT + ID, { 'state': 1 })
-  //  state.set('Ready');
+    state.set('Ready');
     //set a presence detection to start notification
 
     _USERBPM = await scan();
@@ -95,7 +95,7 @@ async function init() {
     //console.log('_USERBPM', _USERBPM);
     await axios.put(USERS_ENDPOINT + _USER.data._id, { 'pulse': _USERBPM })
     await axios.put(PULSESENSORS_ENDPOINT + ID, { 'state': 3 })
-  //  state.set('done');
+    state.set('done');
   }
 }
 
@@ -137,7 +137,7 @@ async function scan() {
   return new Promise(async (resolve, reject) => {
     let scanBPM;
     timerInstance.addEventListener("secondsUpdated", function (e) {
-     // timer.set(timerInstance.getTimeValues().toString())
+     timer.set(timerInstance.getTimeValues().toString())
       //console.log(timerInstance.getTimeValues().toString());
     });
     timerInstance.addEventListener("targetAchieved", async function (e) {
@@ -151,7 +151,6 @@ async function scan() {
         scanBPM = bpm;
         await axios.put('http://192.168.1.15:8080/api/pulsesensors/s001', { 'state': 2 })
         state.set('Scanning');
-
         timerInstance.start({ countdown: true, startValues: { seconds: 15 } });
       }
     })
