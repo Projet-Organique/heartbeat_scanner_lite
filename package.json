@@ -1,0 +1,24 @@
+{
+  "name": "heartbeat_scanner_lite",
+  "version": "1.0.0",
+  "description": "heartbeat_scanner_lite",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Projet-Organique/heartbeat_scanner_lite.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Projet-Organique/heartbeat_scanner_lite/issues"
+  },
+  "homepage": "https://github.com/Projet-Organique/heartbeat_scanner_lite#readme",
+  "dependencies": {
+    "@pm2/io": "^5.0.0",
+    "node-ble": "^1.6.0",
+    "pm2": "^5.1.2"
+  }
+}
