@@ -93,9 +93,7 @@ async function init() {
  // state.set('Loading');
  // sleep(5000);
 
-  await axios.put(PULSESENSORS_ENDPOINT + ID, { 'state': 1 })
-  state.set('Ready');
-  console.log('Ready');
+ 
   //readyToScan = await getScanState();
 
 
@@ -119,6 +117,9 @@ async function init() {
 }
 
 async function event(presence){
+    await axios.put(PULSESENSORS_ENDPOINT + ID, { 'state': 1 })
+    state.set('Ready');
+    console.log('Ready');
     if(presence){
       console.log("presense:" + presence)
       if(readyToScan){
@@ -159,7 +160,7 @@ function sleep(ms) {
  * Check the BPM and return true if it's 0
  * @return {Promise<boolean>} true if bpm 0
  */
-async function getScanState() {
+/*async function getScanState() {
   return new Promise(async (resolve, reject) => {
     _HEARTRATE.on("valuechanged", async (buffer) => {
       let json = JSON.stringify(buffer);
@@ -169,14 +170,16 @@ async function getScanState() {
       }
     })
   })
-}
+}*/
 
 /**
  * Start the BPM scan. When value is stable we launch the counter and return the last value
  * @return {Promise<number>} Last BPM after a certain time
  */
 async function scan() {
+
   return new Promise(async (resolve, reject) => {
+    timerInstance.reset();
     let scanBPM;
     timerInstance.addEventListener("secondsUpdated", function (e) {
      timer.set(timerInstance.getTimeValues().toString())
@@ -190,12 +193,12 @@ async function scan() {
     _HEARTRATE.on("valuechanged", async (buffer) => {
       let json = JSON.stringify(buffer);
       let bpm = Math.max.apply(null, JSON.parse(json).data);
+      polarBPM.set(bpm);
       console.log(bpm);
       if (bpm != 0) {
         scanBPM = bpm;
         await axios.put('http://192.168.1.15:8080/api/pulsesensors/s001', { 'state': 2 })
         state.set('Scanning');
-        timerInstance.reset();
         timerInstance.start({ countdown: true, startValues: { seconds: 15 } });
       }
     })
