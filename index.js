@@ -87,12 +87,14 @@ async function init() {
     polarBPM.set(bpm);
   })
 
-  await axios.put(PULSESENSORS_ENDPOINT + ID, { 'state': 0 })
-  state.set('Loading');
-  sleep(5000);
+  //await axios.put(PULSESENSORS_ENDPOINT + ID, { 'state': 0 })
+  //console.log('loading');
+ // state.set('Loading');
+ // sleep(5000);
 
   await axios.put(PULSESENSORS_ENDPOINT + ID, { 'state': 1 })
   state.set('Ready');
+  console.log(Ready);
   //readyToScan = await getScanState();
   if(_ISPRESENCE){
     console.log("presense:" + _ISPRESENCE)
