@@ -157,7 +157,7 @@ async function setState(id){
   await axios.put('http://192.168.1.15:8080/api/pulsesensors/s001', { 'state': id })
 }
 
-function reset(){
+async function reset(){
   console.log("Reset")
   readyToScan = true;
   console.log("Ready to scan: " + readyToScan);
