@@ -133,7 +133,7 @@ async function event(presence){
         });
         _USERBPM = await scan();
         await axios.put('http://192.168.1.15:8080/api/users/' + _USER.data._id, { 'pulse': _USERBPM })
-        await axios.put('http://192.168.1.15:8080/api/pulsessensores/s001', { 'state': 3 , 'rgb': _USER.data.rgb})
+        await axios.put('http://192.168.1.15:8080/api/pulsesensors/s001', { 'state': 3 , 'rgb': _USER.data.rgb})
         reset();
         state.set('done');
         //process.exit(0);
@@ -147,7 +147,7 @@ async function event(presence){
 }
 
 async function setState(id){
-  await axios.put('http://192.168.1.15:8080/api/pulsessensores/s001', { 'state': id })
+  await axios.put('http://192.168.1.15:8080/api/pulsesensors/s001', { 'state': id })
 }
 
 function reset(){
