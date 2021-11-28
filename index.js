@@ -79,7 +79,7 @@ async function init() {
   _HEARTRATE = heartrate;
 
   _USER = await axios.get(USERS_ENDPOINT+'randomUser').catch(async function (error) {
-    console.log(error.response.data.message)
+    console.log(error)
     await axios.put(PULSESENSORS_ENDPOINT + ID, { 'state': 4 })
     state.set('No lantern!');
     process.exit(1);
