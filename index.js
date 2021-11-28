@@ -78,13 +78,6 @@ async function init() {
 
   _HEARTRATE = heartrate;
 
-  _USER = await axios.get(USERS_ENDPOINT+'randomUser').catch(async function (error) {
-    console.log(error)
-    await axios.put(PULSESENSORS_ENDPOINT + ID, { 'state': 4 })
-    state.set('No lantern!');
-    process.exit(1);
-  });
-
 
   await _HEARTRATE.startNotifications();
 
@@ -104,6 +97,11 @@ async function init() {
   if(_ISPRESENCE){
     console.log("presense:" + _ISPRESENCE)
     if(readyToScan){
+      _USER = await axios.get(USERS_ENDPOINT+'randomUser').catch(async function (error) {
+        await axios.put(PULSESENSORS_ENDPOINT + ID, { 'state': 4 })
+        state.set('No lantern!');
+        return;
+      });
       _USERBPM = await scan();
       await axios.put(USERS_ENDPOINT + _USER.data._id, { 'pulse': _USERBPM })
       await axios.put(PULSESENSORS_ENDPOINT + ID, { 'state': 3 , 'rgb': _USER.data.rgb})
