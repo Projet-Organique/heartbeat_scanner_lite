@@ -108,11 +108,7 @@ async function init() {
   //   state.set('Ready');
 
   //   _USERBPM = await scan();
-  _USER = await axios.get('http://192.168.1.15:8080/api/users/randomUser/').then((s)=>{
-    console.log(s);
-  }).catch((e)=>{
-    console.log(e)
-  });
+ 
   //console.log(_USER);
   //   await axios.put(USERS_ENDPOINT + _USER.data._id, { 'pulse': _USERBPM })
   //   await axios.put(PULSESENSORS_ENDPOINT + ID, { 'state': 3 , 'rgb': _USER.data.rgb})
@@ -128,15 +124,16 @@ async function event(presence){
     if(presence){
       console.log("presense:" + presence)
       if(readyToScan){
-        _USER = await axios.get(USERS_ENDPOINT+'randomUser').catch(async function (error) {
+        _USER = await axios.get('http://192.168.1.15:8080/api/users/randomUser/').catch(async function (error) {
           //await axios.put(PULSESENSORS_ENDPOINT + ID, { 'state': 4 })
+          console.log(error.response.data)
           setState(4);
           state.set('No lantern!');
           return;
         });
         _USERBPM = await scan();
-        await axios.put(USERS_ENDPOINT + _USER.data._id, { 'pulse': _USERBPM })
-        await axios.put(PULSESENSORS_ENDPOINT + ID, { 'state': 3 , 'rgb': _USER.data.rgb})
+        await axios.put('http://192.168.1.15:8080/api/users/' + _USER.data._id, { 'pulse': _USERBPM })
+        await axios.put('http://192.168.1.15:8080/api/users/pulsessensores/' + ID, { 'state': 3 , 'rgb': _USER.data.rgb})
         reset();
         state.set('done');
         //process.exit(0);
@@ -150,7 +147,7 @@ async function event(presence){
 }
 
 async function setState(id){
-  await axios.put(PULSESENSORS_ENDPOINT + ID, { 'state': id })
+  await axios.put('http://192.168.1.15:8080/api/users/pulsessensores/' + ID, { 'state': id })
 }
 
 function reset(){
