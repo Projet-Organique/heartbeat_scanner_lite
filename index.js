@@ -87,7 +87,8 @@ async function init() {
     let bpm = Math.max.apply(null, JSON.parse(json).data);
     polarBPM.set(bpm);
   })*/
-  await axios.get('http://192.168.1.15:8080/api/users/randomUser/').catch(async function (error){
+  
+ await axios.get('http://192.168.1.15:8080/api/users/randomUser/').catch(async function (error){
         //await axios.put(PULSESENSORS_ENDPOINT + ID, { 'state': 4 })
         if(error){
           console.log(error.response.data)
@@ -97,6 +98,9 @@ async function init() {
           process.exit(0);
         }
       });
+
+
+      //_USER = await getRandomUser();
   //await axios.put(PULSESENSORS_ENDPOINT + ID, { 'state': 0 })
   //console.log('loading');
  // state.set('Loading');
@@ -159,7 +163,6 @@ function reset(){
   console.log(_USERBPM);
   console.log(readyToScan);
   _USERBPM = 0;
-
 }
 
 async function getRandomUser() {
@@ -212,7 +215,7 @@ async function scan() {
     });
     timerInstance.addEventListener("targetAchieved", async function (e) {
       readyToScan = false;
-      _HEARTRATE.startNotifications();
+      _HEARTRATE.stopNotifications();
       timerInstance.pause();
       resolve(scanBPM);
     });
