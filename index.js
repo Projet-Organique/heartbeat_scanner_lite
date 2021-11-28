@@ -2,8 +2,7 @@ require("dotenv").config();
 const io = require('@pm2/io')
 const { createBluetooth } = require("./src");
 const axios = require('axios');
-var { Timer } = require("easytimer.js");
-
+const timer = new Timer({ label: 'bpm-timer' });
 const client = require("./mqtt")();
 var timerInstance = new Timer();
 
@@ -148,6 +147,7 @@ async function event(presence){
       }
     }else{
       readyToScan = true;
+      await _HEARTRATE.stopNotifications();
       setState(1);
       reset();
     }
@@ -216,7 +216,7 @@ async function scan() {
     });
     timerInstance.addEventListener("targetAchieved", async function (e) {
       readyToScan = false;
-      timerInstance.pause();
+     // timerInstance.pause();
       await _HEARTRATE.stopNotifications();
 
       resolve(scanBPM);
