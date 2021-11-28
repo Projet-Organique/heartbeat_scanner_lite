@@ -2,7 +2,6 @@ require("dotenv").config();
 const io = require('@pm2/io')
 const { createBluetooth } = require("./src");
 const axios = require('axios');
-const timer = new Timer({ label: 'bpm-timer' });
 const client = require("./mqtt")();
 var timerInstance = new Timer();
 
