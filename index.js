@@ -82,11 +82,11 @@ async function init() {
 
   await _HEARTRATE.startNotifications();
 
-  _HEARTRATE.on("valuechanged", async (buffer) => {
+  /*_HEARTRATE.on("valuechanged", async (buffer) => {
     let json = JSON.stringify(buffer);
     let bpm = Math.max.apply(null, JSON.parse(json).data);
     polarBPM.set(bpm);
-  })
+  })*/
 
   //await axios.put(PULSESENSORS_ENDPOINT + ID, { 'state': 0 })
   //console.log('loading');
@@ -132,6 +132,7 @@ async function event(presence){
         _USERBPM = await scan();
         await axios.put(USERS_ENDPOINT + _USER.data._id, { 'pulse': _USERBPM })
         await axios.put(PULSESENSORS_ENDPOINT + ID, { 'state': 3 , 'rgb': _USER.data.rgb})
+        reset();
         state.set('done');
         //process.exit(0);
       }
@@ -152,8 +153,7 @@ function reset(){
   console.log(_USERBPM);
   console.log(readyToScan);
   _USERBPM = 0;
-  _HEARTRATE.startNotifications();
-  timerInstance.pause();
+
 }
 
 /**
@@ -197,7 +197,8 @@ async function scan() {
     });
     timerInstance.addEventListener("targetAchieved", async function (e) {
       readyToScan = false;
-      reset();
+      _HEARTRATE.startNotifications();
+      timerInstance.pause();
       resolve(scanBPM);
     });
     
@@ -217,4 +218,4 @@ async function scan() {
   });
 }
 
-init().then(console.log).catch(console.error);
+init();
