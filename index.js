@@ -108,10 +108,12 @@ async function init() {
   //   state.set('Ready');
 
   //   _USERBPM = await scan();
-  _USER = await axios.get('http://192.168.1.15:8080/api/users/randomUser/').catch((e)=>{
+  _USER = await axios.get('http://192.168.1.15:8080/api/users/randomUser/').then((s)=>{
+    console.log(s);
+  }).catch((e)=>{
     console.log(e)
   });
-  console.log(_USER);
+  //console.log(_USER);
   //   await axios.put(USERS_ENDPOINT + _USER.data._id, { 'pulse': _USERBPM })
   //   await axios.put(PULSESENSORS_ENDPOINT + ID, { 'state': 3 , 'rgb': _USER.data.rgb})
   //   state.set('done');
