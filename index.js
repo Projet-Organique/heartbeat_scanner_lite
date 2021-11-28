@@ -4,10 +4,19 @@ const { createBluetooth } = require("./src");
 const axios = require('axios');
 var { Timer } = require("easytimer.js");
 
-const client = require("./mqtt");;
+const client = require("./mqtt")();
 var timerInstance = new Timer();
-console.log(client);
-client.publish('api/pulsesensors/state', "22")
+
+client.on('connect', function () {
+  client.subscribe('api/users/presence')
+})
+
+client.on('message', function (topic, message) {
+  // message is Buffer
+  console.log(message.toString())
+  client.end()
+})
+
 const { POLAR_MAC_ADRESSE, USERS_ENDPOINT, PULSESENSORS_ENDPOINT, ID } = process.env;
 
 const state = io.metric({
