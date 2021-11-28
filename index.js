@@ -93,7 +93,6 @@ async function init() {
           console.log(error.response.data)
           setState(4);
           state.set('No lantern!');
-          reject(error.response.data)
           sleep(5000);
           process.exit(0);
         }
