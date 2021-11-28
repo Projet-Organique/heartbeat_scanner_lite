@@ -147,7 +147,6 @@ async function event(presence){
         //process.exit(0);
       }
     }else{
-      readyToScan = true;
       setState(1);
       reset();
     }
@@ -160,11 +159,13 @@ async function setState(id){
 
 function reset(){
   console.log("Reset")
-  console.log(_USERBPM);
-  console.log(readyToScan);
-  _USERBPM = 0;
-  await _HEARTRATE.stopNotifications();
   readyToScan = true;
+  console.log("Ready to scan: " + readyToScan);
+  _USERBPM = 0;
+  console.log("User BPM: " + _USERBPM);
+  timerInstance.stop();
+  await _HEARTRATE.stopNotifications();
+
 }
 
 async function getRandomUser() {
@@ -218,7 +219,7 @@ async function scan() {
     });
     timerInstance.addEventListener("targetAchieved", async function (e) {
 
-      await _HEARTRATE.stopNotifications();
+      //await _HEARTRATE.stopNotifications();
       resolve(scanBPM);
     });
     
