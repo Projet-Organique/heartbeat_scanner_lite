@@ -163,6 +163,8 @@ function reset(){
   console.log(_USERBPM);
   console.log(readyToScan);
   _USERBPM = 0;
+  await _HEARTRATE.stopNotifications();
+  readyToScan = true;
 }
 
 async function getRandomUser() {
@@ -206,7 +208,7 @@ function sleep(ms) {
  * @return {Promise<number>} Last BPM after a certain time
  */
 async function scan() {
-
+  readyToScan = false;
   return new Promise(async (resolve, reject) => {
     let scanBPM;
     await _HEARTRATE.startNotifications();
@@ -215,9 +217,8 @@ async function scan() {
      console.log(timerInstance.getTimeValues().toString());
     });
     timerInstance.addEventListener("targetAchieved", async function (e) {
-      readyToScan = false;
-      await _HEARTRATE.stopNotifications();
 
+      await _HEARTRATE.stopNotifications();
       resolve(scanBPM);
     });
     
