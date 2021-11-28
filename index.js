@@ -148,8 +148,12 @@ async function setState(id){
 }
 
 function reset(){
+  console.log("Reset")
+  console.log(_USERBPM);
+  console.log(readyToScan);
   _USERBPM = 0;
-  timerInstance.start({ countdown: true, startValues: { seconds: 0 } });
+  _HEARTRATE.startNotifications();
+  timerInstance.pause();
 }
 
 /**
@@ -192,6 +196,7 @@ async function scan() {
      console.log(timerInstance.getTimeValues().toString());
     });
     timerInstance.addEventListener("targetAchieved", async function (e) {
+      readyToScan = false;
       reset();
       resolve(scanBPM);
     });
