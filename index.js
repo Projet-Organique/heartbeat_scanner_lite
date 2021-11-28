@@ -148,7 +148,6 @@ async function event(presence){
       }
     }else{
       readyToScan = true;
-      await _HEARTRATE.stopNotifications();
       setState(1);
       reset();
     }
@@ -217,7 +216,6 @@ async function scan() {
     });
     timerInstance.addEventListener("targetAchieved", async function (e) {
       readyToScan = false;
-     // timerInstance.pause();
       await _HEARTRATE.stopNotifications();
 
       resolve(scanBPM);
