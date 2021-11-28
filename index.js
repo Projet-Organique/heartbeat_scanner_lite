@@ -80,7 +80,7 @@ async function init() {
   _HEARTRATE = heartrate;
 
 
-  await _HEARTRATE.startNotifications();
+ // await _HEARTRATE.startNotifications();
 
   /*_HEARTRATE.on("valuechanged", async (buffer) => {
     let json = JSON.stringify(buffer);
@@ -209,14 +209,16 @@ async function scan() {
 
   return new Promise(async (resolve, reject) => {
     let scanBPM;
+    await _HEARTRATE.startNotifications();
     timerInstance.addEventListener("secondsUpdated", function (e) {
      timer.set(timerInstance.getTimeValues().toString())
      console.log(timerInstance.getTimeValues().toString());
     });
     timerInstance.addEventListener("targetAchieved", async function (e) {
       readyToScan = false;
-      _HEARTRATE.stopNotifications();
       timerInstance.pause();
+      await _HEARTRATE.stopNotifications();
+
       resolve(scanBPM);
     });
     
