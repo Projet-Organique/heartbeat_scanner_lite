@@ -133,6 +133,7 @@ async function event(presence){
         await axios.put(USERS_ENDPOINT + _USER.data._id, { 'pulse': _USERBPM })
         await axios.put(PULSESENSORS_ENDPOINT + ID, { 'state': 3 , 'rgb': _USER.data.rgb})
         state.set('done');
+        //process.exit(0);
       }
     }else{
       readyToScan = true;
@@ -148,7 +149,7 @@ async function setState(id){
 
 function reset(){
   _USERBPM = 0;
-  timerInstance.stop();
+  timerInstance.start({ countdown: true, startValues: { seconds: 0 } });
 }
 
 /**
@@ -185,7 +186,6 @@ function sleep(ms) {
 async function scan() {
 
   return new Promise(async (resolve, reject) => {
-    timerInstance.reset();
     let scanBPM;
     timerInstance.addEventListener("secondsUpdated", function (e) {
      timer.set(timerInstance.getTimeValues().toString())
