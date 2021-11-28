@@ -3,8 +3,11 @@ const io = require('@pm2/io')
 const { createBluetooth } = require("./src");
 const axios = require('axios');
 var { Timer } = require("easytimer.js");
-var timerInstance = new Timer();
 
+const client = require("./mqtt");;
+var timerInstance = new Timer();
+console.log(client);
+client.publish('api/pulsesensors/state', "22")
 const { POLAR_MAC_ADRESSE, USERS_ENDPOINT, PULSESENSORS_ENDPOINT, ID } = process.env;
 
 const state = io.metric({
@@ -34,6 +37,8 @@ let _USER;
 let _HEARTRATE = null;
 let readyToScan = false;
 
+// detect presence scan and after 15 get user
+
 async function init() {
 
   console.clear();
@@ -62,9 +67,9 @@ async function init() {
 
   _HEARTRATE = heartrate;
 
-  _USER = await axios.get('http://192.168.1.15:8080/api/users/randomUser').catch(async function (error) {
+  _USER = await axios.get(USERS_ENDPOINT+'randomUser').catch(async function (error) {
     console.log(error.response.data.message)
-    await axios.put('http://192.168.1.15:8080/api/pulsesensors/s001', { 'state': 4 })
+    await axios.put(PULSESENSORS_ENDPOINT + ID, { 'state': 4 })
     state.set('No lantern!');
     process.exit(1);
   });
@@ -101,7 +106,7 @@ async function init() {
     _USERBPM = await scan();
 
     await axios.put(USERS_ENDPOINT + _USER.data._id, { 'pulse': _USERBPM })
-    await axios.put(PULSESENSORS_ENDPOINT + ID, { 'state': 3 })
+    await axios.put(PULSESENSORS_ENDPOINT + ID, { 'state': 3 , 'rgb': _USER.data.rgb})
     state.set('done');
     doneBPM.set(_USERBPM)
     readyToScan = false;
