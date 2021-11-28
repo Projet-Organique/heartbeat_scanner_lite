@@ -85,14 +85,6 @@ async function init() {
     process.exit(1);
   });
 
-  if(_USER == undefined){
-    error.set('User undefined, will restart...')
-    sleep(3000);
-    process.exit(1);
-  }
-
-  //console.log('Got user: ' + _USER.data.id);
-  lanternSelected.set(_USER);
 
   await _HEARTRATE.startNotifications();
 
