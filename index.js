@@ -159,13 +159,13 @@ async function setState(id){
 }
 
 async function reset(){
-  console.log("Reset")
-  readyToScan = true;
-  console.log("Ready to scan: " + readyToScan);
-  _USERBPM = 0;
-  console.log("User BPM: " + _USERBPM);
+ // console.log("Reset")
+  //readyToScan = true;
+  //console.log("Ready to scan: " + readyToScan);
+ // _USERBPM = 0;
+ // console.log("User BPM: " + _USERBPM);
   timerInstance.stop();
-  await _HEARTRATE.stopNotifications();
+  //await _HEARTRATE.stopNotifications();
   sleep(3000);
   process.exit(0);
 
