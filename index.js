@@ -16,6 +16,7 @@ client.on('connect', function () {
 client.on('message', function (topic, message) {
   // message is Buffer
   _ISPRESENCE = JSON.parse(message.toString()).presence;
+  event( JSON.parse(message.toString()).presence);
   console.log(_ISPRESENCE)
 })
 
@@ -94,24 +95,9 @@ async function init() {
 
   await axios.put(PULSESENSORS_ENDPOINT + ID, { 'state': 1 })
   state.set('Ready');
-  console.log(Ready);
+  console.log('Ready');
   //readyToScan = await getScanState();
-  if(_ISPRESENCE){
-    console.log("presense:" + _ISPRESENCE)
-    if(readyToScan){
-      _USER = await axios.get(USERS_ENDPOINT+'randomUser').catch(async function (error) {
-        await axios.put(PULSESENSORS_ENDPOINT + ID, { 'state': 4 })
-        state.set('No lantern!');
-        return;
-      });
-      _USERBPM = await scan();
-      await axios.put(USERS_ENDPOINT + _USER.data._id, { 'pulse': _USERBPM })
-      await axios.put(PULSESENSORS_ENDPOINT + ID, { 'state': 3 , 'rgb': _USER.data.rgb})
-      state.set('done');
-    }
-  }else{
-    reset();
-  }
+
 
   // if (readyToScan) {
 
@@ -130,6 +116,26 @@ async function init() {
   //   await sleep(5000);
   //   process.exit(0);
   // }
+}
+
+async function event(presence){
+    if(presence){
+      console.log("presense:" + presence)
+      if(readyToScan){
+        _USER = await axios.get(USERS_ENDPOINT+'randomUser').catch(async function (error) {
+          await axios.put(PULSESENSORS_ENDPOINT + ID, { 'state': 4 })
+          state.set('No lantern!');
+          return;
+        });
+        _USERBPM = await scan();
+        await axios.put(USERS_ENDPOINT + _USER.data._id, { 'pulse': _USERBPM })
+        await axios.put(PULSESENSORS_ENDPOINT + ID, { 'state': 3 , 'rgb': _USER.data.rgb})
+        state.set('done');
+      }
+    }else{
+      reset();
+    }
+
 }
 
 function reset(){
