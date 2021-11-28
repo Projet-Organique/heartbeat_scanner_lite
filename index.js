@@ -102,6 +102,7 @@ async function init() {
   state.set('Ready');
   //readyToScan = await getScanState();
   if(_ISPRESENCE){
+    console.log("presense:" + _ISPRESENCE)
     if(readyToScan){
       _USERBPM = await scan();
       await axios.put(USERS_ENDPOINT + _USER.data._id, { 'pulse': _USERBPM })
@@ -173,6 +174,7 @@ async function scan() {
     let scanBPM;
     timerInstance.addEventListener("secondsUpdated", function (e) {
      timer.set(timerInstance.getTimeValues().toString())
+     console.log(timerInstance.getTimeValues().toString());
     });
     timerInstance.addEventListener("targetAchieved", async function (e) {
       reset();
@@ -182,6 +184,7 @@ async function scan() {
     _HEARTRATE.on("valuechanged", async (buffer) => {
       let json = JSON.stringify(buffer);
       let bpm = Math.max.apply(null, JSON.parse(json).data);
+      console.log(bpm);
       if (bpm != 0) {
         scanBPM = bpm;
         await axios.put('http://192.168.1.15:8080/api/pulsesensors/s001', { 'state': 2 })
