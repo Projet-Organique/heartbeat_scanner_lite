@@ -77,7 +77,7 @@ async function init() {
 
   _HEARTRATE = heartrate;
 
-  await _HEARTRATE.startNotifications();
+  await heartrate.startNotifications();
 
   _HEARTRATE.on("valuechanged", async (buffer) => {
     let json = JSON.stringify(buffer);
