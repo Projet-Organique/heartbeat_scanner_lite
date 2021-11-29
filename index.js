@@ -7,7 +7,6 @@ var { Timer } = require("easytimer.js");
 const client = require("./mqtt")();
 var timerInstance = new Timer();
 
-
 client.on('connect', function () {
   client.subscribe('api/users/presence')
 })
@@ -47,10 +46,14 @@ const error = io.metric({
   name: 'Catch error',
 })
 
+const polarState = io.metric({
+  name: 'Check if polar is on or off',
+})
+
 let _USERBPM;
 let _USER;
 let _HEARTRATE;
-let _PRESENCE;
+let _PRESENCE = false;
 let readyToScan = true;
 
 async function connectDevice(){
@@ -81,6 +84,7 @@ async function connectDevice(){
       "00002a37-0000-1000-8000-00805f9b34fb"
     );
     _HEARTRATE = heartrate
+    polarState.set("On")
     resolve();
   
   });
@@ -97,16 +101,15 @@ async function init() {
     const isNotifying = await _HEARTRATE.isNotifying().catch(async (e)=>{
       if(e){
         console.log(e.text)
-        if(_PRESENCE == false){
           console.log("No device..?");
+          polarState.set("Off")
           await connectDevice();
           //process.exit(0);
-        }
       }
     }); 
     console.log(isNotifying);
 
-  }, 3000);
+  }, 1000);
 
 
 
