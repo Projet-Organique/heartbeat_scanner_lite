@@ -19,9 +19,10 @@ client.on('connect', function () {
 
 client.on('message', function (topic, message) {
   // message is Buffer
-  let buff = message.toString();
+  let buff = message.toString().toLowerCase();
   let value = JSON.parse(buff);
   _PRESENCE = value.presence
+  console.log(_PRESENCE);
   presence.set(_PRESENCE);
   event(_PRESENCE);
 })
