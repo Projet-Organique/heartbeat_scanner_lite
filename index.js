@@ -76,7 +76,9 @@ async function init() {
   );
 
   _HEARTRATE = heartrate;
-
+    if(_HEARTRATE == null){
+      process.exit(0);
+    }
 
   await axios.get('http://192.168.1.15:8080/api/users/randomUser/').catch(async function (error) {
     //await axios.put(PULSESENSORS_ENDPOINT + ID, { 'state': 4 })
@@ -104,6 +106,7 @@ async function init() {
 
 async function event(presence) {
 
+  console.log(presence);
   // make sure to wait to be sure someone is there and its stable
   // OR USE A PRESSUR SENSOR
   if (presence) {
