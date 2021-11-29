@@ -107,6 +107,9 @@ async function init() {
 async function event(presence) {
 
   console.log(presence);
+  if(presence == false){
+    console.log("dddddd")
+  }
   // make sure to wait to be sure someone is there and its stable
   // OR USE A PRESSUR SENSOR
   if (presence) {
