@@ -7,8 +7,23 @@ var { Timer } = require("easytimer.js");
 const client = require("./mqtt")();
 var timerInstance = new Timer();
 
+let _USERBPM;
+let _USER;
+let _HEARTRATE;
+let _PRESENCE = false;
+let readyToScan = true;
+
 client.on('connect', function () {
   client.subscribe('api/users/presence')
+})
+
+client.on('message', function (topic, message) {
+  // message is Buffer
+  let buff = message.toString();
+  let value = JSON.parse(buff);
+  _PRESENCE = value.presence
+  presence.set(_PRESENCE);
+  event(_PRESENCE);
 })
 
 const { POLAR_MAC_ADRESSE, USERS_ENDPOINT, PULSESENSORS_ENDPOINT, ID } = process.env;
@@ -41,22 +56,6 @@ const polarState = io.metric({
   name: 'Check if polar is on or off',
 })
 
-let _USERBPM;
-let _USER;
-let _HEARTRATE;
-let _PRESENCE = false;
-let readyToScan = true;
-
-
-
-client.on('message', function (topic, message) {
-  // message is Buffer
-  let buff = message.toString();
-    let value = JSON.parse(buff);
-    _PRESENCE = value.presence
-    presence.set(_PRESENCE);
-    event(_PRESENCE);
-})
 
 async function connectDevice(){
   return new Promise(async (resolve) => {
@@ -90,7 +89,6 @@ async function connectDevice(){
     resolve();
   
   });
-
 }
 
 async function checkNotification(){
@@ -112,10 +110,6 @@ async function init() {
 
   await connectDevice();
   await checkNotification();
-
-
-
-
   await _HEARTRATE.startNotifications();
 
   _HEARTRATE.on("valuechanged", async (buffer) => {
@@ -133,10 +127,12 @@ async function init() {
       process.exit(0);
     }
   });
+
   userPicked.set(`User [${_USER.data.id}]`)
   setState(0);
   state.set(`Ready [${0}]`);
   console.log('Ready');
+  
 }
 
 
