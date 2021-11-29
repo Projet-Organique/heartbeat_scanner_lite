@@ -62,7 +62,11 @@ async function connectDevice(){
       await adapter.startDiscovery();
     console.log("Discovering device...");
   
-    const device = await adapter.waitDevice("A0:9E:1A:9F:0E:B4");
+    const device = await adapter.waitDevice("A0:9E:1A:9F:0E:B4").catch((err)=>{
+      if(err){
+        process.exit(0);
+      }
+    });
     console.log("got device", await device.getAddress(), await device.getName());
     await device.connect();
     console.log("Connected!");
@@ -89,7 +93,20 @@ async function init() {
 
   await connectDevice();
 
+  setInterval(async function(){ 
+    const isNotifying = await heartrate.isNotifying().catch(async (e)=>{
+      if(e){
+        console.log(e.text)
+        if(_PRESENCE == false){
+          console.log("No device..?");
+          await connectDevice();
+          //process.exit(0);
+        }
+      }
+    }); 
+    console.log(isNotifying);
 
+  }, 3000);
 
 
 
