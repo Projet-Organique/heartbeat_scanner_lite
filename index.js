@@ -55,6 +55,8 @@ let readyToScan = true;
 
 async function init() {
 
+  kill();
+
   console.clear();
 
   const { bluetooth } = createBluetooth();
@@ -103,6 +105,13 @@ async function init() {
   setState(0);
   state.set(`Ready [${0}]`);
   console.log('Ready');
+}
+
+async function kill(){
+  return new Promise(async (resolve) => {
+    await sleep(10000);
+    resolve();
+  });
 }
 
 async function event(presence) {
