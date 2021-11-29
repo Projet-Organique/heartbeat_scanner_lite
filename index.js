@@ -16,8 +16,8 @@ client.on('message', function (topic, message) {
   // message is Buffer
   let buff = message.toString();
   let value = JSON.parse(buff);
-  presence.set(value.presence)
-  event(value.presence);
+  presence.set(value.presence);
+  event(JSON.parse(value.presence.toLowerCase()));
 })
 
 const { POLAR_MAC_ADRESSE, USERS_ENDPOINT, PULSESENSORS_ENDPOINT, ID } = process.env;
@@ -48,7 +48,7 @@ const error = io.metric({
 
 let _USERBPM;
 let _USER;
-let _HEARTRATE = null;
+let _HEARTRATE;
 let readyToScan = true;
 
 async function init() {
@@ -78,9 +78,19 @@ async function init() {
   );
 
   _HEARTRATE = heartrate;
-    if(_HEARTRATE == null){
-      process.exit(0);
-    }
+
+
+  if(heartrate == null){
+    process.exit(0);
+  }
+
+  await _HEARTRATE.startNotifications();
+
+  _HEARTRATE.on("valuechanged", async (buffer) => {
+    let json = JSON.stringify(buffer);
+    let bpm = Math.max.apply(null, JSON.parse(json).data);
+    polarBPM.set(bpm);
+  })
 
   await axios.get('http://192.168.1.15:8080/api/users/randomUser/').catch(async function (error) {
     //await axios.put(PULSESENSORS_ENDPOINT + ID, { 'state': 4 })
@@ -93,13 +103,7 @@ async function init() {
     }
   });
 
-  await _HEARTRATE.startNotifications();
 
-  _HEARTRATE.on("valuechanged", async (buffer) => {
-    let json = JSON.stringify(buffer);
-    let bpm = Math.max.apply(null, JSON.parse(json).data);
-    polarBPM.set(bpm);
-  })
 
   setState(0);
   state.set('Ready');
@@ -108,10 +112,6 @@ async function init() {
 
 async function event(presence) {
 
-  console.log(presence);
-  if(presence == false){
-    console.log("dddddd")
-  }
   // make sure to wait to be sure someone is there and its stable
   // OR USE A PRESSUR SENSOR
   if (presence) {
