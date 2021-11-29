@@ -16,8 +16,8 @@ client.on('connect', function () {
 client.on('message', function (topic, message) {
   // message is Buffer
   _ISPRESENCE = JSON.parse(message.toString()).presence;
-  event( JSON.parse(message.toString()).presence);
-  console.log(_ISPRESENCE)
+    event( JSON.parse(message.toString()).presence);
+    console.log("PRESENCE IS: " + _ISPRESENCE)
 })
 
 const { POLAR_MAC_ADRESSE, USERS_ENDPOINT, PULSESENSORS_ENDPOINT, ID } = process.env;
@@ -80,13 +80,13 @@ async function init() {
   _HEARTRATE = heartrate;
 
 
- // await _HEARTRATE.startNotifications();
+  await _HEARTRATE.startNotifications();
 
-  /*_HEARTRATE.on("valuechanged", async (buffer) => {
+  _HEARTRATE.on("valuechanged", async (buffer) => {
     let json = JSON.stringify(buffer);
     let bpm = Math.max.apply(null, JSON.parse(json).data);
     polarBPM.set(bpm);
-  })*/
+  })
   
  await axios.get('http://192.168.1.15:8080/api/users/randomUser/').catch(async function (error){
         //await axios.put(PULSESENSORS_ENDPOINT + ID, { 'state': 4 })
@@ -134,8 +134,10 @@ async function init() {
 }
 
 async function event(presence){
+
+  // make sure to wait to be sure someone is there and its stable
+  // OR USE A PRESSUR SENSOR
     if(presence){
-      console.log("presense:" + presence)
       if(readyToScan){
         setState(0);
         _USER = await getRandomUser();
