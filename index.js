@@ -79,11 +79,6 @@ async function init() {
 
   _HEARTRATE = heartrate;
 
-
-  if(heartrate == null){
-    process.exit(0);
-  }
-
   await _HEARTRATE.startNotifications();
 
   _HEARTRATE.on("valuechanged", async (buffer) => {
