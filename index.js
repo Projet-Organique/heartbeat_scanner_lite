@@ -77,13 +77,6 @@ async function init() {
 
   _HEARTRATE = heartrate;
 
-  await heartrate.startNotifications();
-
-  _HEARTRATE.on("valuechanged", async (buffer) => {
-    let json = JSON.stringify(buffer);
-    let bpm = Math.max.apply(null, JSON.parse(json).data);
-    polarBPM.set(bpm);
-  })
 
   await axios.get('http://192.168.1.15:8080/api/users/randomUser/').catch(async function (error) {
     //await axios.put(PULSESENSORS_ENDPOINT + ID, { 'state': 4 })
@@ -95,6 +88,14 @@ async function init() {
       process.exit(0);
     }
   });
+  
+  await _HEARTRATE.startNotifications();
+
+  _HEARTRATE.on("valuechanged", async (buffer) => {
+    let json = JSON.stringify(buffer);
+    let bpm = Math.max.apply(null, JSON.parse(json).data);
+    polarBPM.set(bpm);
+  })
 
   setState(0);
   state.set('Ready');
