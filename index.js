@@ -53,44 +53,58 @@ let _HEARTRATE;
 let _PRESENCE;
 let readyToScan = true;
 
-async function init() {
-
+async function connectDevice(){
+  return new Promise(async (resolve) => {
+    const { bluetooth } = createBluetooth();
+    const adapter = await bluetooth.defaultAdapter();
   
+    if (!(await adapter.isDiscovering()))
+      await adapter.startDiscovery();
+    console.log("Discovering device...");
+  
+    const device = await adapter.waitDevice("A0:9E:1A:9F:0E:B4");
+    console.log("got device", await device.getAddress(), await device.getName());
+    await device.connect();
+    console.log("Connected!");
+  
+    const gattServer = await device.gatt();
+    //var services = await gattServer.services();
+  
+    const service = await gattServer.getPrimaryService(
+      "0000180d-0000-1000-8000-00805f9b34fb"
+    );
+    const heartrate = await service.getCharacteristic(
+      "00002a37-0000-1000-8000-00805f9b34fb"
+    );
+    _HEARTRATE = heartrate
+    resolve();
+  
+  });
+
+}
+
+async function init() { 
 
   console.clear();
 
-  const { bluetooth } = createBluetooth();
-  const adapter = await bluetooth.defaultAdapter();
-
-  if (!(await adapter.isDiscovering()))
-    await adapter.startDiscovery();
-  console.log("Discovering device...");
-
-  const device = await adapter.waitDevice("A0:9E:1A:9F:0E:B4");
-  console.log("got device", await device.getAddress(), await device.getName());
-  await device.connect();
-  console.log("Connected!");
-
-  const gattServer = await device.gatt();
-  //var services = await gattServer.services();
-
-  const service = await gattServer.getPrimaryService(
-    "0000180d-0000-1000-8000-00805f9b34fb"
-  );
-  const heartrate = await service.getCharacteristic(
-    "00002a37-0000-1000-8000-00805f9b34fb"
-  );
+  await connectDevice();
 
   setInterval(async function(){ 
-    const isNotifying = await heartrate.isNotifying(); 
+    const isNotifying = await heartrate.isNotifying().catch((e)=>{
+      if(e){
+        console.log(e.text)
+        if(_PRESENCE == false){
+          console.log("No device..?");
+          await connectDevice();
+          //process.exit(0);
+        }
+      }
+    }); 
     console.log(isNotifying);
-    if(!isNotifying && _PRESENCE == false){
-      console.log("No device..?");
-      process.exit(0);
-    }
+
   }, 3000);
 
-  _HEARTRATE = heartrate;
+
 
   await _HEARTRATE.startNotifications();
 
