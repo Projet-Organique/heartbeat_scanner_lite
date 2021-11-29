@@ -32,7 +32,7 @@ const polarBPM = io.metric({
 })
 
 const presence = io.metric({
-  name: 'Get the client presence',
+  name: 'User presence',
 })
 
 const lanternSelected = io.metric({
@@ -94,14 +94,14 @@ async function init() {
     if (error) {
       console.log(error.response.data)
       setState(3);
-      state.set('No lantern!');
+      state.set(`No lantern [${3}]`);
       sleep(5000);
       process.exit(0);
     }
   });
 
   setState(0);
-  state.set('Ready');
+  state.set(`Ready [${0}]`);
   console.log('Ready');
 }
 
@@ -117,7 +117,7 @@ async function event(presence) {
       await axios.put('http://192.168.1.15:8080/api/users/' + _USER.data._id, { 'pulse': _USERBPM })
       await axios.put('http://192.168.1.15:8080/api/pulsesensors/s001', { 'state': 2, 'rgb': _USER.data.rgb })
       reset();
-      state.set('done');
+      state.set(`Done [${2}]`);
       sleep(5000);
       process.exit(0);
     }
@@ -149,7 +149,7 @@ async function reset() {
 async function getRandomUser() {
   return new Promise(async (resolve) => {
     await axios.get('http://192.168.1.15:8080/api/users/randomUser/').then((user) => {
-      lanternSelected.set(user.data.id)
+      user.set(`User [${user.data.id}]`)
       resolve(user);
     })
   });
@@ -195,7 +195,7 @@ async function scan() {
       if (bpm != 0) {
         scanBPM = bpm;
         setState(1);
-        state.set('Scanning');
+        state.set(`Scanning [${1}]`);
         timerInstance.start({ countdown: true, startValues: { seconds: 15 } });
       }
     })
