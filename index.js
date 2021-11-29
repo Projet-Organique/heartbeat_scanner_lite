@@ -52,8 +52,15 @@ const error = io.metric({
   name: 'Catch error',
 })
 
-const polarState = io.metric({
-  name: 'Check if polar is on or off',
+const message = io.metric({
+  name: 'Global message',
+})
+
+const polarMAC = io.metric({
+  name: 'Polar Mac Adress',
+})
+const polarName = io.metric({
+  name: 'Polar device name',
 })
 
 
@@ -72,10 +79,18 @@ async function connectDevice(){
         process.exit(0);
       }
     });
-    console.log("got device", await device.getAddress(), await device.getName());
+
+    const macAdresss = await device.getAddress()
+    const deviceName = await device.getName()
+
+    console.log("got device", macAdresss, deviceName);
+    polarMAC.set(macAdresss)
+    polarName.set(polarName);
+
     await device.connect();
     console.log("Connected!");
-  
+    message.set('Connected')
+
     const gattServer = await device.gatt();
     //var services = await gattServer.services();
   
@@ -97,7 +112,7 @@ async function checkNotification(){
     await _HEARTRATE.isNotifying().catch(async (e)=>{
       if(e){
         console.log(e.text)
-          polarState.set("Off")
+          //polarState.set("Off")
           await connectDevice();
           //process.exit(1);
       }
@@ -109,34 +124,44 @@ async function init() {
 
   console.clear();
 
-  const { bluetooth } = createBluetooth();
-  const adapter = await bluetooth.defaultAdapter();
+  
+    const { bluetooth } = createBluetooth();
+    const adapter = await bluetooth.defaultAdapter();
+  
+    if (!(await adapter.isDiscovering()))
+      await adapter.startDiscovery();
+    console.log("Discovering device...");
+  
+    const device = await adapter.waitDevice("A0:9E:1A:9F:0E:B4").catch((err)=>{
+      if(err){
+        process.exit(0);
+      }
+    });
 
-  if (!(await adapter.isDiscovering()))
-    await adapter.startDiscovery();
-  console.log("Discovering device...");
+    const macAdresss = await device.getAddress()
+    const deviceName = await device.getName()
 
-  const device = await adapter.waitDevice("A0:9E:1A:9F:0E:B4").catch((err)=>{
-    if(err){
-      process.exit(0);
-    }
-  });
-  console.log("got device", await device.getAddress(), await device.getName());
-  await device.connect();
-  console.log("Connected!");
+    console.log("got device", macAdresss, deviceName);
+    polarMAC.set(macAdresss)
+    polarName.set(polarName);
 
-  const gattServer = await device.gatt();
-  //var services = await gattServer.services();
+    await device.connect();
+    console.log("Connected!");
+    message.set('Connected')
+    
+    const gattServer = await device.gatt();
+    //var services = await gattServer.services();
+  
+    const service = await gattServer.getPrimaryService(
+      "0000180d-0000-1000-8000-00805f9b34fb"
+    );
+    const heartrate = await service.getCharacteristic(
+      "00002a37-0000-1000-8000-00805f9b34fb"
+    );
 
-  const service = await gattServer.getPrimaryService(
-    "0000180d-0000-1000-8000-00805f9b34fb"
-  );
-  const heartrate = await service.getCharacteristic(
-    "00002a37-0000-1000-8000-00805f9b34fb"
-  );
-
-  _HEARTRATE = heartrate
+    _HEARTRATE = heartrate
   //checkNotification();
+  message.set("Waiting for notifications")
   await _HEARTRATE.startNotifications();
 
   _HEARTRATE.on("valuechanged", async (buffer) => {
@@ -145,6 +170,7 @@ async function init() {
     polarBPM.set(bpm);
   })
 
+  message.set(" ")
   _USER = await axios.get('http://192.168.1.15:8080/api/users/randomUser/').catch(async function (error) {
     if (error) {
       console.log(error.response.data)
@@ -168,6 +194,7 @@ async function event(presence) {
   // make sure to wait to be sure someone is there and its stable
   // OR USE A PRESSUR SENSOR
   if (presence) {
+    console.log(presence);
     if (readyToScan) {
       setState(1);
       //_USER = await getRandomUser();
