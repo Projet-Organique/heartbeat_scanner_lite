@@ -89,6 +89,11 @@ async function connectDevice(){
     _HEARTRATE = heartrate
     if(_HEARTRATE != null && _HEARTRATE != undefined){
       polarState.set("On")
+      _HEARTRATE.on("valuechanged", async (buffer) => {
+        let json = JSON.stringify(buffer);
+        let bpm = Math.max.apply(null, JSON.parse(json).data);
+        polarBPM.set(bpm);
+      })
       resolve();
     }
   });
@@ -115,11 +120,7 @@ async function init() {
   await checkNotification();
   await _HEARTRATE.startNotifications();
 
-  _HEARTRATE.on("valuechanged", async (buffer) => {
-    let json = JSON.stringify(buffer);
-    let bpm = Math.max.apply(null, JSON.parse(json).data);
-    polarBPM.set(bpm);
-  })
+
 
   _USER = await axios.get('http://192.168.1.15:8080/api/users/randomUser/').catch(async function (error) {
     if (error) {
