@@ -7,7 +7,6 @@ var { Timer } = require("easytimer.js");
 const client = require("./mqtt")();
 var timerInstance = new Timer();
 
-//let _ISPRESENCE = false;
 
 client.on('connect', function () {
   client.subscribe('api/users/presence')
@@ -17,7 +16,6 @@ client.on('message', function (topic, message) {
   // message is Buffer
   presence.set(JSON.parse(message.toString()).presence)
   event(JSON.parse(message.toString()).presence);
-  console.log("PRESENCE IS: " + _ISPRESENCE)
 })
 
 const { POLAR_MAC_ADRESSE, USERS_ENDPOINT, PULSESENSORS_ENDPOINT, ID } = process.env;
