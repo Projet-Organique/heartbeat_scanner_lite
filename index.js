@@ -81,7 +81,7 @@ async function init() {
     "00002a37-0000-1000-8000-00805f9b34fb"
   );
 
-  setInterval(function(){ 
+  setInterval(async function(){ 
     const isNotifying = await heartrate.isNotifying(); 
     console.log(isNotifying);
     if(!isNotifying && _PRESENCE == false){
