@@ -11,15 +11,6 @@ client.on('connect', function () {
   client.subscribe('api/users/presence')
 })
 
-client.on('message', function (topic, message) {
-  // message is Buffer
-  let buff = message.toString();
-  let value = JSON.parse(buff);
-  presence.set(value.presence);
-  _PRESENCE = JSON.parse(value.presence.toLowerCase())
-  event(JSON.parse(value.presence.toLowerCase()));
-})
-
 const { POLAR_MAC_ADRESSE, USERS_ENDPOINT, PULSESENSORS_ENDPOINT, ID } = process.env;
 
 const state = io.metric({
@@ -56,6 +47,17 @@ let _HEARTRATE;
 let _PRESENCE = false;
 let readyToScan = true;
 
+
+
+client.on('message', function (topic, message) {
+  // message is Buffer
+  let buff = message.toString();
+    let value = JSON.parse(buff);
+    _PRESENCE = value.presence
+    presence.set(_PRESENCE);
+    event(_PRESENCE);
+})
+
 async function connectDevice(){
   return new Promise(async (resolve) => {
     const { bluetooth } = createBluetooth();
@@ -91,25 +93,26 @@ async function connectDevice(){
 
 }
 
+async function checkNotification(){
+  setInterval(async function(){ 
+    await _HEARTRATE.isNotifying().catch(async (e)=>{
+      if(e){
+        console.log(e.text)
+          polarState.set("Off")
+          await connectDevice();
+          //process.exit(1);
+      }
+    }); 
+  }, 1000);
+}
+
 async function init() { 
 
   console.clear();
 
   await connectDevice();
+  await checkNotification();
 
-  setInterval(async function(){ 
-    const isNotifying = await _HEARTRATE.isNotifying().catch(async (e)=>{
-      if(e){
-        console.log(e.text)
-          console.log("No device..?");
-          polarState.set("Off")
-          await connectDevice();
-          //process.exit(0);
-      }
-    }); 
-    console.log(isNotifying);
-
-  }, 1000);
 
 
 
