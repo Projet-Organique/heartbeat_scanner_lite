@@ -87,10 +87,8 @@ async function connectDevice(){
     );
 
     _HEARTRATE = heartrate
-    if(_HEARTRATE != null && _HEARTRATE != undefined){
-      polarState.set("On")
-      resolve();
-    }
+    polarState.set("On")
+    resolve();
   });
 }
 
