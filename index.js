@@ -120,6 +120,7 @@ async function event(presence) {
       await axios.put('http://192.168.1.15:8080/api/users/' + _USER.data._id, { 'pulse': _USERBPM })
       await axios.put('http://192.168.1.15:8080/api/pulsesensors/s001', { 'state': 2, 'rgb': _USER.data.rgb })
       //reset();
+      readyToScan = false;
       timerInstance.stop();
       state.set(`Done [${2}]`);
       await sleep(5000);
