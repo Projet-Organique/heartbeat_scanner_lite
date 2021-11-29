@@ -64,18 +64,18 @@ const polarName = io.metric({
 })
 
 
-async function connectDevice(){
+async function connectDevice() {
   return new Promise(async (resolve) => {
 
     const { bluetooth } = createBluetooth();
     const adapter = await bluetooth.defaultAdapter();
-  
+
     if (!(await adapter.isDiscovering()))
       await adapter.startDiscovery();
     console.log("Discovering device...");
-  
-    const device = await adapter.waitDevice("A0:9E:1A:9F:0E:B4").catch((err)=>{
-      if(err){
+
+    const device = await adapter.waitDevice("A0:9E:1A:9F:0E:B4").catch((err) => {
+      if (err) {
         process.exit(0);
       }
     });
@@ -93,7 +93,7 @@ async function connectDevice(){
 
     const gattServer = await device.gatt();
     //var services = await gattServer.services();
-  
+
     const service = await gattServer.getPrimaryService(
       "0000180d-0000-1000-8000-00805f9b34fb"
     );
@@ -107,68 +107,68 @@ async function connectDevice(){
   });
 }
 
-async function checkNotification(){
-  setInterval(async function(){ 
-    await _HEARTRATE.isNotifying().catch(async (e)=>{
-      if(e){
+async function checkNotification() {
+  setInterval(async function () {
+    await _HEARTRATE.isNotifying().catch(async (e) => {
+      if (e) {
         console.log(e.text)
-          //polarState.set("Off")
-          await connectDevice();
-          //process.exit(1);
+        //polarState.set("Off")
+        await connectDevice();
+        //process.exit(1);
       }
-    }); 
+    });
   }, 1000);
 }
 
-async function init() { 
+async function init() {
 
   console.clear();
 
-  
-    const { bluetooth } = createBluetooth();
-    const adapter = await bluetooth.defaultAdapter();
-  
-    if (!(await adapter.isDiscovering()))
-      await adapter.startDiscovery();
-    console.log("Discovering device...");
-  
-    const device = await adapter.waitDevice("A0:9E:1A:9F:0E:B4").catch((err)=>{
-      if(err){
-        process.exit(0);
-      }
-    });
 
-    const macAdresss = await device.getAddress()
-    const deviceName = await device.getName()
+  const { bluetooth } = createBluetooth();
+  const adapter = await bluetooth.defaultAdapter();
 
-    console.log("got device", macAdresss, deviceName);
-    polarMAC.set(macAdresss)
-    polarName.set(polarName);
+  if (!(await adapter.isDiscovering()))
+    await adapter.startDiscovery();
+  console.log("Discovering device...");
 
-    await device.connect();
-    console.log("Connected!");
-    message.set('Connected')
-    
-    const gattServer = await device.gatt();
-    //var services = await gattServer.services();
-  
-    const service = await gattServer.getPrimaryService(
-      "0000180d-0000-1000-8000-00805f9b34fb"
-    );
-    const heartrate = await service.getCharacteristic(
-      "00002a37-0000-1000-8000-00805f9b34fb"
-    );
+  const device = await adapter.waitDevice("A0:9E:1A:9F:0E:B4").catch((err) => {
+    if (err) {
+      process.exit(0);
+    }
+  });
 
-    _HEARTRATE = heartrate
+  const macAdresss = await device.getAddress()
+  const deviceName = await device.getName()
+
+  console.log("got device", macAdresss, deviceName);
+  polarMAC.set(macAdresss)
+  polarName.set(polarName);
+
+  await device.connect();
+  console.log("Connected!");
+  message.set('Connected')
+
+  const gattServer = await device.gatt();
+  //var services = await gattServer.services();
+
+  const service = await gattServer.getPrimaryService(
+    "0000180d-0000-1000-8000-00805f9b34fb"
+  );
+  const heartrate = await service.getCharacteristic(
+    "00002a37-0000-1000-8000-00805f9b34fb"
+  );
+  await heartrate.startNotifications();
+
+  _HEARTRATE = heartrate
   //checkNotification();
   message.set("Waiting for notifications")
-  await _HEARTRATE.startNotifications();
 
-  _HEARTRATE.on("valuechanged", async (buffer) => {
+  _/*HEARTRATE.on("valuechanged", async (buffer) => {
     let json = JSON.stringify(buffer);
     let bpm = Math.max.apply(null, JSON.parse(json).data);
     polarBPM.set(bpm);
-  })
+  })*/
 
   message.set(" ")
   _USER = await axios.get('http://192.168.1.15:8080/api/users/randomUser/').catch(async function (error) {
@@ -237,7 +237,7 @@ async function reset() {
 async function getRandomUser() {
   return new Promise(async (resolve) => {
     await axios.get('http://192.168.1.15:8080/api/users/randomUser/').then((user) => {
-      
+
       resolve(user);
     })
   });
@@ -261,11 +261,11 @@ async function scan() {
   readyToScan = false;
   return new Promise(async (resolve, reject) => {
     let scanBPM;
-   // await _HEARTRATE.startNotifications();
+    // await _HEARTRATE.startNotifications();
     timerInstance.addEventListener("secondsUpdated", function (e) {
       timer.set(timerInstance.getTimeValues().toString())
       console.log(timerInstance.getTimeValues().toString());
-      if(!_PRESENCE){
+      if (!_PRESENCE) {
         reset();
       }
     });
