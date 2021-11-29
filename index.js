@@ -100,7 +100,7 @@ async function init() {
       process.exit(0);
     }
   });
-
+  userPicked.set(`User [${_USER.data.id}]`)
   setState(0);
   state.set(`Ready [${0}]`);
   console.log('Ready');
@@ -152,7 +152,7 @@ async function reset() {
 async function getRandomUser() {
   return new Promise(async (resolve) => {
     await axios.get('http://192.168.1.15:8080/api/users/randomUser/').then((user) => {
-      userPicked.set(`User [${user.data.id}]`)
+      
       resolve(user);
     })
   });
