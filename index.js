@@ -17,6 +17,7 @@ client.on('message', function (topic, message) {
   let buff = message.toString();
   let value = JSON.parse(buff);
   presence.set(value.presence);
+  _PRESENCE = JSON.parse(value.presence.toLowerCase())
   event(JSON.parse(value.presence.toLowerCase()));
 })
 
@@ -49,6 +50,7 @@ const error = io.metric({
 let _USERBPM;
 let _USER;
 let _HEARTRATE;
+let _PRESENCE;
 let readyToScan = true;
 
 async function init() {
@@ -97,8 +99,6 @@ async function init() {
       process.exit(0);
     }
   });
-
-
 
   setState(0);
   state.set('Ready');
@@ -182,6 +182,9 @@ async function scan() {
     timerInstance.addEventListener("secondsUpdated", function (e) {
       timer.set(timerInstance.getTimeValues().toString())
       console.log(timerInstance.getTimeValues().toString());
+      if(!_PRESENCE){
+        reset();
+      }
     });
     timerInstance.addEventListener("targetAchieved", async function (e) {
       resolve(scanBPM);
