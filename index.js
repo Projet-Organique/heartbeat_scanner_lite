@@ -87,7 +87,7 @@ async function connectDevice(){
     );
 
     _HEARTRATE = heartrate
-    polarState.set("On")
+    //polarState.set("On")
     resolve();
   });
 }
@@ -110,7 +110,7 @@ async function init() {
   console.clear();
 
   await connectDevice();
-  await checkNotification();
+  //checkNotification();
   await _HEARTRATE.startNotifications();
 
   _HEARTRATE.on("valuechanged", async (buffer) => {
