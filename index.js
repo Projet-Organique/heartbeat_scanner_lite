@@ -164,11 +164,11 @@ async function init() {
   //checkNotification();
   message.set("Waiting for notifications")
 
-  /*HEARTRATE.on("valuechanged", async (buffer) => {
+  HEARTRATE.on("valuechanged", async (buffer) => {
     let json = JSON.stringify(buffer);
     let bpm = Math.max.apply(null, JSON.parse(json).data);
     polarBPM.set(bpm);
-  })*/
+  })
 
   message.set(" ")
   _USER = await axios.get('http://192.168.1.15:8080/api/users/randomUser/').catch(async function (error) {
