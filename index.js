@@ -55,7 +55,7 @@ let readyToScan = true;
 
 async function init() {
 
-  kill();
+  
 
   console.clear();
 
@@ -97,7 +97,7 @@ async function init() {
       console.log(error.response.data)
       setState(3);
       state.set(`No lantern [${3}]`);
-      sleep(5000);
+      await sleep(5000);
       process.exit(0);
     }
   });
@@ -107,12 +107,7 @@ async function init() {
   console.log('Ready');
 }
 
-async function kill(){
-  return new Promise(async (resolve) => {
-    await sleep(10000);
-    resolve();
-  });
-}
+
 
 async function event(presence) {
 
@@ -127,7 +122,7 @@ async function event(presence) {
       await axios.put('http://192.168.1.15:8080/api/pulsesensors/s001', { 'state': 2, 'rgb': _USER.data.rgb })
       reset();
       state.set(`Done [${2}]`);
-      sleep(5000);
+      await sleep(5000);
       process.exit(0);
     }
   }
@@ -150,7 +145,7 @@ async function setState(id) {
 async function reset() {
   setState(4);
   timerInstance.stop();
-  sleep(3000);
+  await sleep(3000);
   process.exit(0);
 
 }
@@ -174,8 +169,6 @@ function sleep(ms) {
     setTimeout(resolve, ms);
   });
 }
-
-
 /**
  * Start the BPM scan. When value is stable we launch the counter and return the last value
  * @return {Promise<number>} Last BPM after a certain time
