@@ -59,6 +59,7 @@ const polarState = io.metric({
 
 async function connectDevice(){
   return new Promise(async (resolve) => {
+
     const { bluetooth } = createBluetooth();
     const adapter = await bluetooth.defaultAdapter();
   
@@ -84,10 +85,12 @@ async function connectDevice(){
     const heartrate = await service.getCharacteristic(
       "00002a37-0000-1000-8000-00805f9b34fb"
     );
+
     _HEARTRATE = heartrate
-    polarState.set("On")
-    resolve();
-  
+    if(_HEARTRATE != null && _HEARTRATE != undefined){
+      polarState.set("On")
+      resolve();
+    }
   });
 }
 
@@ -132,7 +135,7 @@ async function init() {
   setState(0);
   state.set(`Ready [${0}]`);
   console.log('Ready');
-  
+
 }
 
 
