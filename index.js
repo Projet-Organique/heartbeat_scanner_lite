@@ -88,7 +88,7 @@ async function init() {
       process.exit(0);
     }
   });
-  
+
   await _HEARTRATE.startNotifications();
 
   _HEARTRATE.on("valuechanged", async (buffer) => {
@@ -175,7 +175,7 @@ async function scan() {
   readyToScan = false;
   return new Promise(async (resolve, reject) => {
     let scanBPM;
-    await _HEARTRATE.startNotifications();
+   // await _HEARTRATE.startNotifications();
     timerInstance.addEventListener("secondsUpdated", function (e) {
       timer.set(timerInstance.getTimeValues().toString())
       console.log(timerInstance.getTimeValues().toString());
