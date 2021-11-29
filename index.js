@@ -14,17 +14,16 @@ let _PRESENCE = false;
 let readyToScan = true;
 
 client.on('connect', function () {
-  client.subscribe('api/users/presence')
+  client.subscribe('api/users/userpresence')
 })
 
 client.on('message', function (topic, message) {
   // message is Buffer
-  let buff = message.toString().toLowerCase();
+  let buff = message.toString();
   let value = JSON.parse(buff);
-  _PRESENCE = value.presence
-  console.log(_PRESENCE);
-  presence.set(_PRESENCE);
-  event(_PRESENCE);
+  let valueParse = JSON.parse(value.presence.toLowerCase());
+  presence.set(valueParse);
+  event(valueParse);
 })
 
 const { POLAR_MAC_ADRESSE, USERS_ENDPOINT, PULSESENSORS_ENDPOINT, ID } = process.env;
