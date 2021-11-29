@@ -7,7 +7,7 @@ var { Timer } = require("easytimer.js");
 const client = require("./mqtt")();
 var timerInstance = new Timer();
 
-let _ISPRESENCE = false;
+//let _ISPRESENCE = false;
 
 client.on('connect', function () {
   client.subscribe('api/users/presence')
@@ -15,9 +15,9 @@ client.on('connect', function () {
 
 client.on('message', function (topic, message) {
   // message is Buffer
-  _ISPRESENCE = JSON.parse(message.toString()).presence;
-    event( JSON.parse(message.toString()).presence);
-    console.log("PRESENCE IS: " + _ISPRESENCE)
+  presence.set(JSON.parse(message.toString()).presence)
+  event(JSON.parse(message.toString()).presence);
+  console.log("PRESENCE IS: " + _ISPRESENCE)
 })
 
 const { POLAR_MAC_ADRESSE, USERS_ENDPOINT, PULSESENSORS_ENDPOINT, ID } = process.env;
@@ -25,11 +25,13 @@ const { POLAR_MAC_ADRESSE, USERS_ENDPOINT, PULSESENSORS_ENDPOINT, ID } = process
 const state = io.metric({
   name: 'Scanning state',
 })
+
 const polarBPM = io.metric({
   name: 'Polar BPM',
 })
-const doneBPM = io.metric({
-  name: 'User BPM after scan',
+
+const presence = io.metric({
+  name: 'Get the client presence',
 })
 
 const lanternSelected = io.metric({
@@ -49,15 +51,13 @@ let _USER;
 let _HEARTRATE = null;
 let readyToScan = true;
 
-// detect presence scan and after 15 get user
-
 async function init() {
 
   console.clear();
-  
+
   const { bluetooth } = createBluetooth();
   const adapter = await bluetooth.defaultAdapter();
- 
+
   if (!(await adapter.isDiscovering()))
     await adapter.startDiscovery();
   console.log("Discovering device...");
@@ -79,7 +79,6 @@ async function init() {
 
   _HEARTRATE = heartrate;
 
-
   await _HEARTRATE.startNotifications();
 
   _HEARTRATE.on("valuechanged", async (buffer) => {
@@ -87,87 +86,62 @@ async function init() {
     let bpm = Math.max.apply(null, JSON.parse(json).data);
     polarBPM.set(bpm);
   })
-  
- await axios.get('http://192.168.1.15:8080/api/users/randomUser/').catch(async function (error){
-        //await axios.put(PULSESENSORS_ENDPOINT + ID, { 'state': 4 })
-        if(error){
-          console.log(error.response.data)
-          setState(4);
-          state.set('No lantern!');
-          sleep(5000);
-          process.exit(0);
-        }
-      });
 
+  await axios.get('http://192.168.1.15:8080/api/users/randomUser/').catch(async function (error) {
+    //await axios.put(PULSESENSORS_ENDPOINT + ID, { 'state': 4 })
+    if (error) {
+      console.log(error.response.data)
+      setState(3);
+      state.set('No lantern!');
+      sleep(5000);
+      process.exit(0);
+    }
+  });
 
-      //_USER = await getRandomUser();
-  //await axios.put(PULSESENSORS_ENDPOINT + ID, { 'state': 0 })
-  //console.log('loading');
- // state.set('Loading');
- // sleep(5000);
-
-    //await axios.put(PULSESENSORS_ENDPOINT + ID, { 'state': 1 })
-    setState(1);
-    state.set('Ready');
-    console.log('Ready');
-  //readyToScan = await getScanState();
-
-
-  // if (readyToScan) {
-
-  //   process.stdout.write("\r\x1b[K")
-  //   process.stdout.write('Ready!')
-  //   await axios.put(PULSESENSORS_ENDPOINT + ID, { 'state': 1 })
-  //   state.set('Ready');
-
-  //   _USERBPM = await scan();
- 
-  //console.log(_USER);
-  //   await axios.put(USERS_ENDPOINT + _USER.data._id, { 'pulse': _USERBPM })
-  //   await axios.put(PULSESENSORS_ENDPOINT + ID, { 'state': 3 , 'rgb': _USER.data.rgb})
-  //   state.set('done');
-  //   doneBPM.set(_USERBPM)
-  //   readyToScan = false;
-  //   await sleep(5000);
-  //   process.exit(0);
-  // }
+  setState(0);
+  state.set('Ready');
+  console.log('Ready');
 }
 
-async function event(presence){
+async function event(presence) {
 
   // make sure to wait to be sure someone is there and its stable
   // OR USE A PRESSUR SENSOR
-    if(presence){
-      if(readyToScan){
-        setState(0);
-        _USER = await getRandomUser();
-        _USERBPM = await scan();
-        await axios.put('http://192.168.1.15:8080/api/users/' + _USER.data._id, { 'pulse': _USERBPM })
-        await axios.put('http://192.168.1.15:8080/api/pulsesensors/s001', { 'state': 3 , 'rgb': _USER.data.rgb})
-        reset();
-        state.set('done');
-        sleep(5000);
-        process.exit(0);
-      }
-    }else{
-      setState(5);
+  if (presence) {
+    if (readyToScan) {
+      setState(1);
+      _USER = await getRandomUser();
+      _USERBPM = await scan();
+      await axios.put('http://192.168.1.15:8080/api/users/' + _USER.data._id, { 'pulse': _USERBPM })
+      await axios.put('http://192.168.1.15:8080/api/pulsesensors/s001', { 'state': 2, 'rgb': _USER.data.rgb })
       reset();
+      state.set('done');
+      sleep(5000);
+      process.exit(0);
     }
+  } else {
+    setState(4);
+    reset();
+  }
 
 }
 
-async function setState(id){
+/**
+ * `STATE 0` = READY or IDLE
+ * `STATE 1` = SCANNING
+ * `STATE 2` = DONE
+ * `STATE 3` = OUT OF LANTERN
+ * `STATE 4` = ERROR FAILED (mainly because client presence is false while scanning)
+ * Set the state of the station
+ * @return {Promise<axios>} return the current bpm value
+ * @param {Number} id
+ */
+async function setState(id) {
   await axios.put('http://192.168.1.15:8080/api/pulsesensors/s001', { 'state': id })
 }
 
-async function reset(){
- // console.log("Reset")
-  //readyToScan = true;
-  //console.log("Ready to scan: " + readyToScan);
- // _USERBPM = 0;
- // console.log("User BPM: " + _USERBPM);
+async function reset() {
   timerInstance.stop();
-  //await _HEARTRATE.stopNotifications();
   sleep(3000);
   process.exit(0);
 
@@ -175,8 +149,8 @@ async function reset(){
 
 async function getRandomUser() {
   return new Promise(async (resolve) => {
-    await axios.get('http://192.168.1.15:8080/api/users/randomUser/').then((user)=>{
-      console.log(user);
+    await axios.get('http://192.168.1.15:8080/api/users/randomUser/').then((user) => {
+      lanternSelected.set(user.data.id)
       resolve(user);
     })
   });
@@ -185,7 +159,7 @@ async function getRandomUser() {
 /**
  * Check the BPM at his current state
  * @return {Promise<number>} return the current bpm value
- * @param int
+ * @param {Number} ms
  */
 function sleep(ms) {
   return new Promise((resolve) => {
@@ -193,21 +167,6 @@ function sleep(ms) {
   });
 }
 
-/**
- * Check the BPM and return true if it's 0
- * @return {Promise<boolean>} true if bpm 0
- */
-/*async function getScanState() {
-  return new Promise(async (resolve, reject) => {
-    _HEARTRATE.on("valuechanged", async (buffer) => {
-      let json = JSON.stringify(buffer);
-      let bpm = Math.max.apply(null, JSON.parse(json).data);
-      if (bpm == 0) {
-        resolve(true)
-      }
-    })
-  })
-}*/
 
 /**
  * Start the BPM scan. When value is stable we launch the counter and return the last value
@@ -219,15 +178,13 @@ async function scan() {
     let scanBPM;
     await _HEARTRATE.startNotifications();
     timerInstance.addEventListener("secondsUpdated", function (e) {
-     timer.set(timerInstance.getTimeValues().toString())
-     console.log(timerInstance.getTimeValues().toString());
+      timer.set(timerInstance.getTimeValues().toString())
+      console.log(timerInstance.getTimeValues().toString());
     });
     timerInstance.addEventListener("targetAchieved", async function (e) {
-
-      //await _HEARTRATE.stopNotifications();
       resolve(scanBPM);
     });
-    
+
     _HEARTRATE.on("valuechanged", async (buffer) => {
       let json = JSON.stringify(buffer);
       let bpm = Math.max.apply(null, JSON.parse(json).data);
@@ -235,8 +192,7 @@ async function scan() {
       console.log(bpm);
       if (bpm != 0) {
         scanBPM = bpm;
-        //await axios.put('http://192.168.1.15:8080/api/pulsesensors/s001', { 'state': 2 })
-        setState(2);
+        setState(1);
         state.set('Scanning');
         timerInstance.start({ countdown: true, startValues: { seconds: 15 } });
       }
