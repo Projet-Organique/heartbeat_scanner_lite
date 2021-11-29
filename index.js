@@ -14,8 +14,10 @@ client.on('connect', function () {
 
 client.on('message', function (topic, message) {
   // message is Buffer
-  presence.set(JSON.parse(message.toString().toLowerCase()).presence)
-  event(JSON.parse(message.toString()).presence);
+  let buff = message.toString();
+  let value = JSON.parse(buff);
+  presence.set(value.presence)
+  event(value.presence);
 })
 
 const { POLAR_MAC_ADRESSE, USERS_ENDPOINT, PULSESENSORS_ENDPOINT, ID } = process.env;
