@@ -144,7 +144,7 @@ async function setState(id) {
 async function reset() {
   setState(4);
   timerInstance.stop();
-  await sleep(3000);
+  //await sleep(1000);
   process.exit(0);
 
 }
