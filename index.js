@@ -121,11 +121,7 @@ async function event(presence) {
       sleep(5000);
       process.exit(0);
     }
-  } else {
-    setState(4);
-    reset();
   }
-
 }
 
 /**
@@ -143,6 +139,7 @@ async function setState(id) {
 }
 
 async function reset() {
+  setState(4);
   timerInstance.stop();
   sleep(3000);
   process.exit(0);
