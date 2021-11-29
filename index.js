@@ -14,7 +14,7 @@ client.on('connect', function () {
 
 client.on('message', function (topic, message) {
   // message is Buffer
-  presence.set(JSON.parse(message.toString()).presence)
+  presence.set(JSON.parse(message.toString().toLowerCase()).presence)
   event(JSON.parse(message.toString()).presence);
 })
 
