@@ -164,7 +164,7 @@ async function init() {
   //checkNotification();
   message.set("Waiting for notifications")
 
-  HEARTRATE.on("valuechanged", async (buffer) => {
+  _HEARTRATE.on("valuechanged", async (buffer) => {
     let json = JSON.stringify(buffer);
     let bpm = Math.max.apply(null, JSON.parse(json).data);
     polarBPM.set(bpm);
