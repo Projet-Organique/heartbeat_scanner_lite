@@ -89,20 +89,7 @@ async function init() {
 
   await connectDevice();
 
-  setInterval(async function(){ 
-    const isNotifying = await heartrate.isNotifying().catch(async (e)=>{
-      if(e){
-        console.log(e.text)
-        if(_PRESENCE == false){
-          console.log("No device..?");
-          await connectDevice();
-          //process.exit(0);
-        }
-      }
-    }); 
-    console.log(isNotifying);
 
-  }, 3000);
 
 
 
