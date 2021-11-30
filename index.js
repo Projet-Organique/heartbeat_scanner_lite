@@ -30,7 +30,7 @@ client.on('message', function (topic, message) {
 
 const { POLAR_MAC_ADRESSE, USERS_ENDPOINT, PULSESENSORS_ENDPOINT, ID } = process.env;
 
-const scanState.set = io.metric({
+const ScanState = io.metric({
   name: 'Scanning state',
 })
 
@@ -72,7 +72,7 @@ async function init() {
   _USER = await axios.get('http://192.168.1.15:8080/api/users/randomUser/').catch(async function (error) {
     if (error) {
       console.log(error.response.data)
-      scanState.set.set("No lantern [3]");
+      scanState.set("No lantern [3]");
       await setState(3);
       await sleep(5000);
       process.exit(0);
@@ -131,7 +131,7 @@ async function init() {
   userPicked.set(`User [${_USER.data.id}]`)
   await setState(0);
   message.set("Init done")
-  scanState.set.set("Ready 0");
+  scanState.set("Ready 0");
   console.log('Ready');
 
 }
@@ -152,7 +152,7 @@ async function event(presence) {
       readyToScan = false;
       _HEARTRATE.stopNotifications();
       timerInstance.pause();
-      scanState.set.set("Done [2]");
+      scanState.set("Done [2]");
       await sleep(5000);
       process.exit(0);
     }
@@ -228,7 +228,7 @@ async function scan() {
       if (bpm != 0) {
         scanBPM = bpm;
         await setState(1);
-        scanState.set.set("Scanning [1]");
+        scanState.set("Scanning [1]");
         timerInstance.start({ countdown: true, startValues: { seconds: 15 } });
       }
     })
