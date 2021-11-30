@@ -172,7 +172,7 @@ async function setState(id) {
 }
 
 async function reset() {
-  setState(4);
+  await setState(4);
   timerInstance.stop();
   process.exit(0);
 }
