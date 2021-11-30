@@ -119,7 +119,7 @@ async function init() {
   _USER = await axios.get('http://192.168.1.15:8080/api/users/randomUser/').catch(async function (error) {
     if (error) {
       console.log(error.response.data)
-      setState(3);
+      await setState(3);
       state.set("No lantern [3]");
       await sleep(5000);
       process.exit(0);
@@ -127,7 +127,7 @@ async function init() {
   });
 
   userPicked.set(`User [${_USER.data.id}]`)
-  setState(0);
+  await setState(0);
   message.set("Init done")
   state.set("Ready [0]");
   console.log('Ready');
@@ -141,7 +141,7 @@ async function event(presence) {
   // OR USE A PRESSUR SENSOR
   if (presence) {
     if (readyToScan) {
-      setState(1);
+      await setState(1);
       //_USER = await getRandomUser();
       _USERBPM = await scan();
       await axios.put('http://192.168.1.15:8080/api/users/' + _USER.data._id, { 'pulse': _USERBPM })
@@ -168,7 +168,11 @@ async function event(presence) {
  * @param {Number} id
  */
 async function setState(id) {
-  await axios.put('http://192.168.1.15:8080/api/pulsesensors/s001', { 'state': id })
+  return new Promise(async (resolve) => {
+    await axios.put('http://192.168.1.15:8080/api/pulsesensors/s001', { 'state': id }).then(() => {
+      resolve();
+    })
+  });
 }
 
 async function reset() {
@@ -206,7 +210,7 @@ async function scan() {
     timerInstance.addEventListener("secondsUpdated", function (e) {
       timer.set(timerInstance.getTimeValues().toString())
       if (!_PRESENCE) {
-        setState(4);
+        await setState(4);
         reset();
       }
     });
@@ -221,7 +225,7 @@ async function scan() {
       console.log(bpm);
       if (bpm != 0) {
         scanBPM = bpm;
-        setState(1);
+        await setState(1);
         state.set("Scanning [1]");
         timerInstance.start({ countdown: true, startValues: { seconds: 15 } });
       }
