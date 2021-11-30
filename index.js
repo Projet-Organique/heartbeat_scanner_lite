@@ -13,20 +13,7 @@ let _HEARTRATE;
 let _PRESENCE = false;
 let readyToScan = true;
 
-client.on('connect', function () {
-  client.subscribe('api/users/userpresence')
-  presence.set(_PRESENCE)
-})
 
-client.on('message', function (topic, message) {
-  // message is Buffer
-  let buff = message.toString();
-  let value = JSON.parse(buff);
-  let valueParse = JSON.parse(value.presence.toLowerCase());
-  _PRESENCE = valueParse
-  presence.set(valueParse);
-  event(valueParse);
-})
 
 const { POLAR_MAC_ADRESSE, USERS_ENDPOINT, PULSESENSORS_ENDPOINT, ID } = process.env;
 
@@ -72,12 +59,27 @@ async function init() {
   _USER = await axios.get('http://192.168.1.15:8080/api/users/randomUser/').catch(async function (error) {
     if (error) {
       console.log(error.response.data)
-      await setState(3);
       state.set("No lantern [3]");
-      await sleep(2000);
+      await setState(3);
+      await sleep(5000);
       process.exit(0);
     }
   });
+
+  client.on('connect', function () {
+    client.subscribe('api/users/userpresence')
+    presence.set(_PRESENCE)
+  })
+  
+  client.on('message', function (topic, message) {
+    // message is Buffer
+    let buff = message.toString();
+    let value = JSON.parse(buff);
+    let valueParse = JSON.parse(value.presence.toLowerCase());
+    _PRESENCE = valueParse
+    presence.set(valueParse);
+    event(valueParse);
+  })
 
   const { bluetooth } = createBluetooth();
   const adapter = await bluetooth.defaultAdapter();
