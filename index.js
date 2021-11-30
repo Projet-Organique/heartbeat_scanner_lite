@@ -15,6 +15,7 @@ let readyToScan = true;
 
 client.on('connect', function () {
   client.subscribe('api/users/userpresence')
+  presence.set(_PRESENCE)
 })
 
 client.on('message', function (topic, message) {
@@ -63,63 +64,6 @@ const polarMAC = io.metric({
 const polarName = io.metric({
   name: 'Polar device name',
 })
-
-
-async function connectDevice() {
-  return new Promise(async (resolve) => {
-
-    const { bluetooth } = createBluetooth();
-    const adapter = await bluetooth.defaultAdapter();
-
-    if (!(await adapter.isDiscovering()))
-      await adapter.startDiscovery();
-    console.log("Discovering device...");
-
-    const device = await adapter.waitDevice("A0:9E:1A:9F:0E:B4").catch((err) => {
-      if (err) {
-        process.exit(0);
-      }
-    });
-
-    const macAdresss = await device.getAddress()
-    const deviceName = await device.getName()
-
-    console.log("got device", macAdresss, deviceName);
-    polarMAC.set(macAdresss)
-    polarName.set(polarName);
-
-    await device.connect();
-    console.log("Connected!");
-    message.set('Connected')
-
-    const gattServer = await device.gatt();
-    //var services = await gattServer.services();
-
-    const service = await gattServer.getPrimaryService(
-      "0000180d-0000-1000-8000-00805f9b34fb"
-    );
-    const heartrate = await service.getCharacteristic(
-      "00002a37-0000-1000-8000-00805f9b34fb"
-    );
-
-    _HEARTRATE = heartrate
-    //polarState.set("On")
-    resolve();
-  });
-}
-
-async function checkNotification() {
-  setInterval(async function () {
-    await _HEARTRATE.isNotifying().catch(async (e) => {
-      if (e) {
-        console.log(e.text)
-        //polarState.set("Off")
-        await connectDevice();
-        //process.exit(1);
-      }
-    });
-  }, 1000);
-}
 
 async function init() {
 
@@ -176,7 +120,7 @@ async function init() {
     if (error) {
       console.log(error.response.data)
       setState(3);
-      state.set(`No lantern [${3}]`);
+      state.set("No lantern [3]");
       await sleep(5000);
       process.exit(0);
     }
@@ -185,7 +129,7 @@ async function init() {
   userPicked.set(`User [${_USER.data.id}]`)
   setState(0);
   message.set("Init done")
-  state.set(`Ready [${0}]`);
+  state.set("Ready [0]");
   console.log('Ready');
 
 }
@@ -196,7 +140,6 @@ async function event(presence) {
   // make sure to wait to be sure someone is there and its stable
   // OR USE A PRESSUR SENSOR
   if (presence) {
-    console.log(presence);
     if (readyToScan) {
       setState(1);
       //_USER = await getRandomUser();
@@ -207,7 +150,7 @@ async function event(presence) {
       readyToScan = false;
       _HEARTRATE.stopNotifications();
       timerInstance.pause();
-      state.set(`Done [${2}]`);
+      state.set("Done [2]");
       await sleep(5000);
       process.exit(0);
     }
@@ -231,15 +174,12 @@ async function setState(id) {
 async function reset() {
   setState(4);
   timerInstance.stop();
-  //await sleep(1000);
   process.exit(0);
-
 }
 
 async function getRandomUser() {
   return new Promise(async (resolve) => {
     await axios.get('http://192.168.1.15:8080/api/users/randomUser/').then((user) => {
-
       resolve(user);
     })
   });
@@ -260,7 +200,7 @@ function sleep(ms) {
  * @return {Promise<number>} Last BPM after a certain time
  */
 async function scan() {
-  //readyToScan = false;
+  readyToScan = false;
   return new Promise(async (resolve, reject) => {
     let scanBPM;
     // await _HEARTRATE.startNotifications();
@@ -283,7 +223,7 @@ async function scan() {
       if (bpm != 0) {
         scanBPM = bpm;
         setState(1);
-        state.set(`Scanning [${1}]`);
+        state.set("Scanning [1]");
         timerInstance.start({ countdown: true, startValues: { seconds: 15 } });
       }
     })
