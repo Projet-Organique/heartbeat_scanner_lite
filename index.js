@@ -170,7 +170,7 @@ async function init() {
     polarBPM.set(bpm);
   })
 
-  message.set(" ")
+  
   _USER = await axios.get('http://192.168.1.15:8080/api/users/randomUser/').catch(async function (error) {
     if (error) {
       console.log(error.response.data)
@@ -183,6 +183,7 @@ async function init() {
 
   userPicked.set(`User [${_USER.data.id}]`)
   setState(0);
+  message.set("Init done")
   state.set(`Ready [${0}]`);
   console.log('Ready');
 
