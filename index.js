@@ -68,7 +68,16 @@ const polarName = io.metric({
 async function init() {
 
   console.clear();
-
+  
+  _USER = await axios.get('http://192.168.1.15:8080/api/users/randomUser/').catch(async function (error) {
+    if (error) {
+      console.log(error.response.data)
+      await setState(3);
+      state.set("No lantern [3]");
+      await sleep(2000);
+      process.exit(0);
+    }
+  });
 
   const { bluetooth } = createBluetooth();
   const adapter = await bluetooth.defaultAdapter();
@@ -116,15 +125,7 @@ async function init() {
   })
 
   
-  _USER = await axios.get('http://192.168.1.15:8080/api/users/randomUser/').catch(async function (error) {
-    if (error) {
-      console.log(error.response.data)
-      await setState(3);
-      state.set("No lantern [3]");
-      await sleep(2000);
-      process.exit(0);
-    }
-  });
+
 
   userPicked.set(`User [${_USER.data.id}]`)
   await setState(0);
