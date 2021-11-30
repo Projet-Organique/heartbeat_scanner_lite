@@ -22,6 +22,7 @@ client.on('message', function (topic, message) {
   let buff = message.toString();
   let value = JSON.parse(buff);
   let valueParse = JSON.parse(value.presence.toLowerCase());
+  _PRESENCE = valueParse
   presence.set(valueParse);
   event(valueParse);
 })
