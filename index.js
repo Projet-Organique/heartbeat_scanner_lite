@@ -69,15 +69,6 @@ async function init() {
 
   console.clear();
   
-  _USER = await axios.get('http://192.168.1.15:8080/api/users/randomUser/').catch(async function (error) {
-    if (error) {
-      console.log(error.response.data)
-      scanState.set("No lantern [3]");
-      await setState(3);
-      await sleep(5000);
-      process.exit(0);
-    }
-  });
 
 
   const { bluetooth } = createBluetooth();
@@ -125,7 +116,16 @@ async function init() {
     polarBPM.set(bpm);
   })
 
-  
+  _USER = await axios.get('http://192.168.1.15:8080/api/users/randomUser/').catch(async function (error) {
+    if (error) {
+      console.log(error.response.data)
+      scanState.set("No lantern [3]");
+      await setState(3);
+      await sleep(5000);
+      process.exit(0);
+    }
+  });
+
 
 
   userPicked.set(`User [${_USER.data.id}]`)
