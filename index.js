@@ -174,7 +174,7 @@ async function setState(id) {
 async function reset() {
   await setState(4);
   timerInstance.stop();
-  process.exit(0);
+  //process.exit(0);
 }
 
 async function getRandomUser() {
