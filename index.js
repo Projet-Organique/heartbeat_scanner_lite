@@ -259,7 +259,7 @@ function sleep(ms) {
  * @return {Promise<number>} Last BPM after a certain time
  */
 async function scan() {
-  readyToScan = false;
+  //readyToScan = false;
   return new Promise(async (resolve, reject) => {
     let scanBPM;
     // await _HEARTRATE.startNotifications();
