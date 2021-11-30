@@ -121,7 +121,7 @@ async function init() {
       console.log(error.response.data)
       await setState(3);
       state.set("No lantern [3]");
-      await sleep(5000);
+      await sleep(2000);
       process.exit(0);
     }
   });
