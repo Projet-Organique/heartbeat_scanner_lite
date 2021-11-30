@@ -131,7 +131,7 @@ async function init() {
   userPicked.set(`User [${_USER.data.id}]`)
   await setState(0);
   message.set("Init done")
-  ScanState.set("Ready [0]");
+  ScanState.set("Ready 0");
   console.log('Ready');
 
 }
