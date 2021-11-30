@@ -207,7 +207,7 @@ async function scan() {
   return new Promise(async (resolve, reject) => {
     let scanBPM;
     // await _HEARTRATE.startNotifications();
-    timerInstance.addEventListener("secondsUpdated", function (e) {
+    timerInstance.addEventListener("secondsUpdated", async function (e) {
       timer.set(timerInstance.getTimeValues().toString())
       if (!_PRESENCE) {
         await setState(4);
