@@ -30,7 +30,7 @@ client.on('message', function (topic, message) {
 
 const { POLAR_MAC_ADRESSE, USERS_ENDPOINT, PULSESENSORS_ENDPOINT, ID } = process.env;
 
-const ScanState = io.metric({
+const scanState = io.metric({
   name: 'Scanning state',
 })
 
