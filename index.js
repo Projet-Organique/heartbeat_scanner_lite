@@ -172,9 +172,7 @@ async function setState(id) {
 }
 
 async function reset() {
-  await setState(4);
   timerInstance.stop();
-  await sleep(2000);
   process.exit(0);
 }
 
@@ -207,8 +205,8 @@ async function scan() {
     // await _HEARTRATE.startNotifications();
     timerInstance.addEventListener("secondsUpdated", function (e) {
       timer.set(timerInstance.getTimeValues().toString())
-      console.log(timerInstance.getTimeValues().toString());
       if (!_PRESENCE) {
+        setState(4);
         reset();
       }
     });
